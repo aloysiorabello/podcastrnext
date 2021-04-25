@@ -1,10 +1,10 @@
 import Image from 'next/image'
-import { useContext, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import Slider from 'rc-slider'
 
 import 'rc-slider/assets/index.css'
 
-import { PlayerContext } from '../../contexts/PlayerContext'
+import { PlayerContext, usePlayer } from '../../contexts/PlayerContext'
 
 import styles from './styles.module.scss'
 
@@ -15,11 +15,15 @@ export function Player() {
     episodeList,
     currentEpisodeIndex,
     isPlaying,
+    isLooping,
+    isShuffling,
     togglePlay,
+    toggleLoop,
+    toggleShuffle,
     setIsPlayingState,
     playNext,
     playPrevious,
-  } = useContext(PlayerContext)
+  } = usePlayer()
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -79,6 +83,7 @@ export function Player() {
           <audio
             src={episode.url}
             ref={audioRef}
+            loop={isLooping}
             autoPlay
             onPlay={() => setIsPlayingState(true)}
             onPause={() => setIsPlayingState(false)}
@@ -86,7 +91,12 @@ export function Player() {
         )}
 
         <div className={styles.buttons}>
-          <button type='button' disabled={!episode}>
+          <button
+            type='button'
+            disabled={!episode || episodeList.length == 1}
+            onClick={toggleShuffle}
+            className={isShuffling ? styles.isActive : ''}
+          >
             <img src='/shuffle.svg' alt='Embaralhar' />
           </button>
           <button type='button' onClick={playPrevious} disabled={!episode}>
@@ -108,7 +118,12 @@ export function Player() {
           <button type='button' onClick={playNext} disabled={!episode}>
             <img src='/play-next.svg' alt='Tocar proximo' />
           </button>
-          <button type='button' disabled={!episode}>
+          <button
+            type='button'
+            disabled={!episode}
+            onClick={toggleLoop}
+            className={isLooping ? styles.isActive : ''}
+          >
             <img src='/repeat.svg' alt='repetir' />
           </button>
         </div>
